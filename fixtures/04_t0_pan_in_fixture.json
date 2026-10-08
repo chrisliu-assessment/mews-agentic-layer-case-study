@@ -1,0 +1,5 @@
+{"_note": "ILLUSTRATIVE: Luhn-valid test PAN (published Visa test number) committed + token logged. Non-waivable.",
+ "pr_id": "DEMO-04", "component": "Payment_Token_Capture", "workflow": "Security_Eval", "time_impact_mins": -30,
+ "files": [{"path": "payments/capture.py", "diff": "+    logger.info('captured token %s', token)\n"},
+           {"path": "tests/contract/test_capture.py", "diff": "+CARD = '4111 1111 1111 1111'\n"}],
+ "approvals": ["@payments-core"], "rollout": {"flag": "capture_v2", "canary_pct": 5}}

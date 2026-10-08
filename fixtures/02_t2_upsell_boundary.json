@@ -1,0 +1,5 @@
+{"_note": "ILLUSTRATIVE: UI widget reaching into payment internals (an architectural miss no per-diff LLM reliably sees).",
+ "pr_id": "DEMO-02", "component": "Upsell_Widget", "workflow": "agent-review", "time_impact_mins": -20,
+ "files": [{"path": "upsell/widget.py", "diff": "+from payments.token_vault.client import fetch\n+def render(): return fetch()\n"},
+           {"path": "tests/test_widget.py", "diff": "+def test_render(): pass\n"}],
+ "approvals": [], "rollout": {"flag": "upsell_v3"}}

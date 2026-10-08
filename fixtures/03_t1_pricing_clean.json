@@ -1,0 +1,5 @@
+{"_note": "ILLUSTRATIVE: a well-formed Tier 1 change; shows the gate stays out of the way when the work is sound.",
+ "pr_id": "DEMO-03", "component": "Dynamic_Pricing_API", "workflow": "ReviewAgent_v2", "time_impact_mins": -60,
+ "files": [{"path": "pricing/rates.py", "diff": "+def apply_rate(p, r):\n+    return round(p * r, 2)\n"},
+           {"path": "tests/test_rates.py", "diff": "+def test_apply_rate(): assert apply_rate(10, 1.1) == 11.0\n"}],
+ "approvals": [], "rollout": {"flag": "pricing_rate_v2", "canary_pct": 10}}

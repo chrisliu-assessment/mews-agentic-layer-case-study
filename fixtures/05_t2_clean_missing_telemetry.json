@@ -1,0 +1,4 @@
+{"_note": "ILLUSTRATIVE: fine change, but the builder used an unregistered workflow and reported no time impact -> warning, not a block.",
+ "pr_id": "DEMO-05", "component": "Booking_Flow_UI", "workflow": "my-local-agent", "time_impact_mins": null,
+ "files": [{"path": "booking/ui/summary.py", "diff": "+def label(n): return f'{n} nights'\n"}],
+ "approvals": [], "rollout": {"flag": "booking_summary"}}

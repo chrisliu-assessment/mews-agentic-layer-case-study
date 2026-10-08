@@ -1,0 +1,4 @@
+{"_note": "ILLUSTRATIVE scenario modelled on PR-042's shape (Tier 0 + LLM Security_Eval only). Not a real diff.",
+ "pr_id": "DEMO-01", "component": "Payment_Routing_Core", "workflow": "Security_Eval", "time_impact_mins": 30,
+ "files": [{"path": "payments/routing/select.py", "diff": "+def pick_gateway(order):\n+    return GATEWAYS[order.currency]\n"}],
+ "approvals": ["llm-security-bot"], "rollout": {"canary_pct": 100}}
