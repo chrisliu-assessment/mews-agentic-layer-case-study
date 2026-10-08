@@ -1,0 +1,8 @@
+{
+  "_doc": "Controls REQUIRED per tier. 'deterministic_gate' and 'owner_approval' are the new layer; 'llm_review' / 'llm_security_review' are what builders were already running ad hoc.",
+  "required_controls": {
+    "0": ["deterministic_gate", "owner_approval", "llm_security_review"],
+    "1": ["deterministic_gate", "llm_review"],
+    "2": ["deterministic_gate"]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "_doc": "Canonical agent workflow ids. Every alias seen in the wild maps to ONE id. 'controls' = what that workflow actually provides, so coverage is computed, not assumed.",
+  "workflows": {
+    "llm-review":  {"aliases": ["agent-review", "ReviewAgent_v2"], "controls": ["llm_review"]},
+    "llm-security-review": {"aliases": ["Security_Eval"], "controls": ["llm_review", "llm_security_review"]},
+    "codegen":     {"aliases": ["Code_Gen_Assist"], "controls": []}
+  }
+}

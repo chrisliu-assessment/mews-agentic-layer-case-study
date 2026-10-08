@@ -1,0 +1,32 @@
+{
+  "_doc": "Rules are data. Each maps to a deterministic check in agentic_gate/checks.py. 'block' fails the required status check; 'warn' is reported. 'waivable' = may be break-glassed with an audited reason.",
+  "version": "2026.10.0",
+  "rules": [
+    {"id": "SEC-001", "title": "No secrets or card numbers in the diff", "tiers": [0,1,2], "severity": "block", "waivable": false,
+     "why": "Credentials/PANs in git are a reportable incident the moment they merge.",
+     "fix": "Remove the value, rotate it if real, use the secrets manager / test PANs from the PSP sandbox."},
+    {"id": "SEC-002", "title": "No card/token fields written to logs", "tiers": [0,1], "severity": "block", "waivable": false,
+     "why": "PCI scope creep: logs are the most common accidental cardholder-data sink.",
+     "fix": "Log an opaque reference id instead of the field."},
+    {"id": "ARCH-001", "title": "Respect component import boundaries", "tiers": [0,1,2], "severity": "block", "waivable": true,
+     "why": "Cross-boundary imports are how a UI change ends up coupled to payment internals.",
+     "fix": "Go through the published API of the other component, or request a boundary change in the catalog."},
+    {"id": "TEST-001", "title": "Source change ships with tests; Tier 0 needs a contract test", "tiers": [0,1], "severity": "block", "waivable": true,
+     "why": "An LLM reading a diff is not evidence that behaviour is preserved. A test is.",
+     "fix": "Add/adjust tests. Tier 0: add a test under a 'contract' path covering the changed interface."},
+    {"id": "OPS-001", "title": "Tier 0/1 changes roll out behind a flag; Tier 0 canary <= 5%", "tiers": [0,1], "severity": "block", "waivable": true,
+     "why": "Sev-1 blast radius is set by how fast a bad change reaches 100% of traffic.",
+     "fix": "Wrap behaviour in a feature flag; set rollout.canary_pct <= 5 for Tier 0."},
+    {"id": "OWN-001", "title": "Tier 0 needs a human CODEOWNER sign-off on risk", "tiers": [0], "severity": "block", "waivable": false,
+     "why": "Humans accept risk on money movement; they do not hunt for misses (gates do that). No model can be the approver.",
+     "fix": "Request approval from the component owner listed in the catalog."},
+    {"id": "TEL-001", "title": "Agent run telemetry is complete and canonical", "tiers": [0,1,2], "severity": "warn", "waivable": true,
+     "why": "Without outcome and time data we cannot tell which controls earn their keep.",
+     "fix": "Use a canonical workflow id and report time_impact_mins."}
+  ],
+  "judge": {
+    "min_precision": 0.90,
+    "min_recall": 0.80,
+    "_doc": "LLM judge earns authority from a measured golden-set score. Below either bar it is advisory only. It can NEVER satisfy OWN-001/TEST-001, override a block, or be the sole control on Tier 0/1."
+  }
+}

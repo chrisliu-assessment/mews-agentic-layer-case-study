@@ -1,0 +1,16 @@
+{
+  "_doc": "Component catalog: the machine-readable source of 'how risky is this code'. Tier is a property of the COMPONENT (blast radius), never of the tool or the builder. Owned by the component team, changed via PR + CODEOWNERS.",
+  "tiers": {
+    "0": "Money movement / cardholder data. Failure = Sev-1, regulatory exposure.",
+    "1": "Revenue logic and guest PII. Failure = wrong prices, privacy incident.",
+    "2": "Guest-facing UI. Failure = lost conversion; cheap to revert."
+  },
+  "components": {
+    "Payment_Routing_Core":  {"tier": 0, "owner": "@payments-core",  "may_not_import": []},
+    "Payment_Token_Capture": {"tier": 0, "owner": "@payments-core",  "may_not_import": []},
+    "Dynamic_Pricing_API":   {"tier": 1, "owner": "@revenue-eng",    "may_not_import": ["guest_profile.pii.*"]},
+    "Guest_Profile_Sync":    {"tier": 1, "owner": "@guest-data",     "may_not_import": ["payments.*"]},
+    "Upsell_Widget":         {"tier": 2, "owner": "@guest-revenue-ui","may_not_import": ["payments.*", "guest_profile.pii.*"]},
+    "Booking_Flow_UI":       {"tier": 2, "owner": "@guest-revenue-ui","may_not_import": ["payments.routing.*", "payments.token_vault.*"]}
+  }
+}
