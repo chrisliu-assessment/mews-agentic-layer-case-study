@@ -1,0 +1,11 @@
+PR_ID,Component,Agent_Workflow,Outcome,Time_Impact_Mins
+PR-034,Upsell_Widget,agent-review,Merged,-45
+PR-035,Dynamic_Pricing_API,Code_Gen_Assist,Merged,-120
+PR-036,Booking_Flow_UI,ReviewAgent_v2,Reverted,60
+PR-037,Payment_Token_Capture,Security_Eval,Merged,-30
+PR-038,Upsell_Widget,agent-review,Merged,
+PR-039,Upsell_Widget,agent-review,Reverted,45
+PR-040,Guest_Profile_Sync,Code_Gen_Assist,Merged,-90
+PR-041,Dynamic_Pricing_API,ReviewAgent_v2,Merged,
+PR-042,Payment_Routing_Core,Security_Eval,Incident (Sev-1),480
+PR-043,Booking_Flow_UI,agent-review,Merged,-20
