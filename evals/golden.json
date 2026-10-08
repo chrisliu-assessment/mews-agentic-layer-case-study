@@ -1,0 +1,13 @@
+{
+  "_doc": "Golden set for calibrating the LLM judge: manifests labelled by humans. In production this grows from every incident/revert (each Sev-1 and revert becomes a case) and from sampled human reviews.",
+  "cases": [
+    {"id": "g1", "has_issue": true,  "why": "bare except swallowing payment error", "diff": "+    try:\n+        route(p)\n+    except:\n+        pass"},
+    {"id": "g2", "has_issue": true,  "why": "eval on request data", "diff": "+    rule = eval(request.args['rule'])"},
+    {"id": "g3", "has_issue": true,  "why": "semantic: retries a non-idempotent charge", "diff": "+    for _ in range(3):\n+        charge(card, amount)  # retry on any failure"},
+    {"id": "g4", "has_issue": true,  "why": "semantic: price rounding drops cents", "diff": "+    price = int(price * rate)"},
+    {"id": "g5", "has_issue": false, "why": "plain rename", "diff": "+    def total_price(self):\n+        return self._total"},
+    {"id": "g6", "has_issue": false, "why": "adds guard clause", "diff": "+    if amount <= 0:\n+        raise ValueError('amount')"},
+    {"id": "g7", "has_issue": false, "why": "css tweak", "diff": "+.btn { margin: 4px; }"},
+    {"id": "g8", "has_issue": true,  "why": "TODO left in auth path", "diff": "+    # TODO: verify signature\n+    return True"}
+  ]
+}
