@@ -18,7 +18,7 @@ gates are mandatory per tier**, and an **LLM judge is advisory until it earns au
 | Brief question | What you can run | What it shows |
 |---|---|---|
 | 1. Root cause of friction and off-bar shipments | `make audit` | Net **+280 min lost** (305 saved vs 585 lost; the Sev-1 alone is 480). 4 workflow labels are really 3. 2 of 10 rows have no time data. **0/10** PRs received the controls their tier requires. |
-| 2. Pattern to encode judgment so it is reliable *and* mandatory | `make demo`, `make calibrate` | Tiered policy-as-code gate; fixtures blocked/passed/warned with rule ids; non-waivable security rules; audited break-glass; judge demoted to advisory because recall 0.6 < 0.8 bar. |
+| 2. Pattern to encode judgment so it is reliable *and* mandatory | `make demo`, `make calibrate` | Tiered policy-as-code gate; fixtures blocked/passed/warned with rule ids; non-waivable security rules; audited waiver recording; judge demoted to advisory because recall 0.6 < 0.8 bar. |
 | 3. Adoption and deprecation of fragmented tooling | `out/events.jsonl` after `make demo` | One canonical telemetry event per run (canonical workflow id, policy hash, verdict, waivers). This is the adoption/deprecation dashboard data source. The plan itself is in the deck. |
 
 ## Run it
@@ -28,8 +28,8 @@ Python 3.9+, **standard library only**, nothing to install.
 ```bash
 make audit        # re-analyse the data pack + control coverage replay
 make demo         # gate 5 illustrative change manifests (3 blocked, 1 pass, 1 warn)
-make calibrate    # measure the LLM-judge stand-in against evals/golden.json
-make test         # 17 unit tests
+make calibrate    # measure the LLM-judge stand-in against evals/golden.json, approve evals/judge_authority.json
+make test         # unit tests (also run in CI, see .github/workflows/ci.yml)
 ```
 
 Gate a single manifest (exit code 1 on BLOCK, so it drops straight into CI as a required check):
@@ -67,8 +67,9 @@ Design decisions worth defending:
 - **Tier is a property of the component, not the tool.** Builders cannot choose a lighter control set by choosing a lighter agent.
 - **Deterministic first.** Boundary, test, rollout, secrets and ownership checks give the same answer every run. An LLM reading a diff is not evidence behaviour is preserved.
 - **Authority is earned and tier-limited.** The judge never overrides a block, never counts as an approver, and is never the sole control on Tier 0/1. `make calibrate` shows the mechanism: the naive judge catches syntactic smells but misses semantic bugs (non-idempotent retry, dropped cents), so it stays advisory.
+- **Calibration is an offline, versioned step, not a per-PR cost.** `make calibrate` is run whenever the model/prompt/policy changes and writes an approved record to `evals/judge_authority.json` (judge name + policy hash + measured mode). `gate.evaluate()` only *reads* that record -- it never recalibrates during a gate run. A record that doesn't match the current judge or policy hash is stale and the gate fails closed to advisory. This matters once the judge is a real model: the authority decision should cost one lookup, not a fresh batch of model calls on every PR.
 - **Humans accept risk; gates hunt for misses.** Tier 0 keeps a human CODEOWNER sign-off (`OWN-001`, non-waivable, model approvals ignored). This is a deliberate reading of "no manual review to catch architectural misses": the human no longer has to *find* problems, only to own the risk.
-- **Mandatory means enforced centrally.** In production the gate runs as a required status check from CI/ruleset, not in a builder's local agent, so it cannot be skipped. Waivers exist but only for waivable rules and are always recorded with approver and reason.
+- **Mandatory means enforced centrally.** In production the gate runs as a required status check from CI/ruleset, not in a builder's local agent, so it cannot be skipped. Waivers exist but only for waivable rules and are always recorded with approver and reason. **In this prototype that is audited recording, not authorization**: `--approver` is any string the caller supplies, with no check that the string is a real person or has the authority to waive the rule. Production would enforce that via GitHub/team identity (e.g. the waive must come from a member of the component's CODEOWNERS team, recorded through the PR review itself rather than a free-text CLI flag).
 - **Every incident and revert feeds the golden set**, so the evals tighten over time.
 
 ## Mapping to production (not built here)
@@ -97,6 +98,7 @@ Design decisions worth defending:
 - **`agent-review` and `ReviewAgent_v2` are treated as the same workflow**; that is an assumption to verify.
 - Tier assignments are my proposal from component names, to be confirmed with the owning teams.
 - Regex checks (PAN, secrets, log scanning) will have false positives/negatives; production would use a vetted scanner.
+- SEC-001 blocks published PSP sandbox test PANs too, not just real ones. `fixtures/04` deliberately commits the published Visa test number `4111 1111 1111 1111` literally in a test file to show this: the rule's remediation is to load sandbox test PANs from a fixture/env at run time, never to hardcode the digits in a diff, so there is no carve-out for "it's only a test number."
 
 ## Layout
 
@@ -104,7 +106,8 @@ Design decisions worth defending:
 agentic_gate/   catalog, checks, judge, gate, telemetry, audit, cli
 policy/         tiers, rules, workflows, required controls
 fixtures/       5 illustrative change manifests
-evals/          golden set for judge calibration
+evals/          golden.json (calibration cases) + judge_authority.json (approved calibration, see `make calibrate`)
 data/           supplied data pack (CSV)
 tests/          unittest suite
+.github/        CI workflow running `make test` on every push/PR
 ```

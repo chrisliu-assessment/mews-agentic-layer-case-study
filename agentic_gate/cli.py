@@ -8,7 +8,7 @@ from pathlib import Path
 from . import audit
 from .catalog import ROOT, Policy
 from .gate import evaluate
-from .judge import KeywordJudge, calibrate
+from .judge import KeywordJudge, approve, calibrate
 from .telemetry import emit
 
 ICON = {"PASS": "PASS ", "PASS_WITH_WARNINGS": "WARN ", "PASS_WITH_WAIVER": "WAIVE", "BLOCK": "BLOCK"}
@@ -39,7 +39,8 @@ def main(argv=None) -> int:
     c.add_argument("manifest")
     c.add_argument("--waive", nargs="+", metavar="RULE")
     c.add_argument("--reason")
-    c.add_argument("--approver")
+    c.add_argument("--approver", help="recorded as-is for audit; this prototype does not verify the approver's "
+                                       "identity or authority (no GitHub/team-identity check -- see README)")
     sub.add_parser("calibrate", help="measure the judge against the golden set")
     sub.add_parser("demo", help="gate every fixture")
     a = ap.parse_args(argv)
@@ -48,12 +49,16 @@ def main(argv=None) -> int:
     if a.cmd == "audit":
         print(audit.render(audit.load(), p))
     elif a.cmd == "calibrate":
-        cal = calibrate(KeywordJudge(), p)
+        judge = KeywordJudge()
+        cal = calibrate(judge, p)
         b = p.judge_bars
-        print(f"judge={KeywordJudge.name}  precision={cal.precision} (bar {b['min_precision']})  recall={cal.recall} (bar {b['min_recall']})")
+        print(f"judge={judge.name}  precision={cal.precision} (bar {b['min_precision']})  recall={cal.recall} (bar {b['min_recall']})")
         print(f"=> authority: {cal.mode.upper()}")
         for x in cal.missed:
             print(f"   missed: {x}")
+        auth = approve(judge, p, cal)
+        print(f"approved -> evals/judge_authority.json (judge={auth.judge}, policy={auth.policy_hash}). "
+              f"The gate reads this record; it is not recalibrated per PR.")
     elif a.cmd == "check":
         waive = {"rules": a.waive, "reason": a.reason, "approver": a.approver} if a.waive else None
         if waive and not (a.reason and a.approver):

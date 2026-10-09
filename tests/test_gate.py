@@ -87,8 +87,8 @@ class JudgeAuthority(unittest.TestCase):
 
     def test_calibrated_judge_may_block_tier2_only(self):
         import agentic_gate.gate as g
-        orig = g.calibrate
-        g.calibrate = lambda j, p: type("C", (), {"mode": "blocking"})()  # pretend it passed calibration
+        orig = g.load_authority
+        g.load_authority = lambda j, p: type("A", (), {"mode": "blocking"})()  # pretend it was approved
         try:
             t2 = fx("05_t2_clean_missing_telemetry.json")
             t2["files"][0]["diff"] += "+    eval(x)\n"
@@ -97,7 +97,29 @@ class JudgeAuthority(unittest.TestCase):
             t1["files"][0]["diff"] += "+    eval(x)\n"
             self.assertNotIn("JUDGE-001", failing(evaluate(t1, P, KeywordJudge())))
         finally:
-            g.calibrate = orig
+            g.load_authority = orig
+
+    def test_uncalibrated_judge_fails_closed_to_advisory(self):
+        import tempfile
+        from pathlib import Path as P_
+        from agentic_gate.judge import KeywordJudge, load_authority
+        with tempfile.TemporaryDirectory() as d:
+            missing = P_(d) / "judge_authority.json"
+            auth = load_authority(KeywordJudge(), P, path=missing)
+            self.assertEqual(auth.mode, "advisory")
+
+    def test_stale_authority_record_is_ignored(self):
+        import json as _json
+        import tempfile
+        from pathlib import Path as P_
+        from agentic_gate.judge import Authority, KeywordJudge, load_authority
+        with tempfile.TemporaryDirectory() as d:
+            stale = P_(d) / "judge_authority.json"
+            stale.write_text(_json.dumps({"judge": KeywordJudge.name, "policy_hash": "deadbeef0000",
+                                           "mode": "blocking", "precision": 1.0, "recall": 1.0,
+                                           "calibrated_at": "2020-01-01T00:00:00+00:00"}))
+            auth = load_authority(KeywordJudge(), P, path=stale)
+            self.assertEqual(auth.mode, "advisory")
 
 
 class Audit(unittest.TestCase):

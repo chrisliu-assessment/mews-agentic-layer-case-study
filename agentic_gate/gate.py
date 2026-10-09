@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 
 from .catalog import Policy
 from .checks import CHECKS, added_lines
-from .judge import Judge, calibrate
+from .judge import Judge, load_authority
 
 
 @dataclass
@@ -53,9 +53,10 @@ def evaluate(m: dict, policy: Policy, judge: Judge | None = None, waive: dict | 
 
     judge_mode, findings = "none", []
     if judge:
-        cal = calibrate(judge, policy)
-        # Authority is earned, tier-limited, and can only ADD blocks on Tier 2. It never removes one.
-        judge_mode = "blocking" if (cal.mode == "blocking" and tier == 2) else "advisory"
+        auth = load_authority(judge, policy)
+        # Authority is earned offline (`make calibrate`), tier-limited, and can only ADD blocks on Tier 2.
+        # It never removes one. The gate reads the approved record; it does not recalibrate per PR.
+        judge_mode = "blocking" if (auth.mode == "blocking" and tier == 2) else "advisory"
         findings = judge.review("\n".join(ln for _, ln in added_lines(m)))
         if findings and judge_mode == "blocking":
             results.append(RuleResult("JUDGE-001", "fail", "; ".join(findings), "block"))
