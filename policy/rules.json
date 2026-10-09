@@ -4,7 +4,7 @@
   "rules": [
     {"id": "SEC-001", "title": "No secrets or card numbers in the diff", "tiers": [0,1,2], "severity": "block", "waivable": false,
      "why": "Credentials/PANs in git are a reportable incident the moment they merge, and a literal card-shaped string in a diff is indistinguishable to a scanner (or a future grep) whether it is real or a published test number.",
-     "fix": "Remove the literal value. Rotate it if real. For tests, load PSP sandbox test PANs from a fixture file, env var, or secrets manager at run time -- never hardcode the digits in the diff; this rule blocks any Luhn-valid 13-19 digit string regardless of whether it is real or a documented test number."},
+     "fix": "Remove the literal value. Rotate it if real. For tests, load PSP sandbox test PANs from an env var or secrets manager (or a fixture file kept outside the repo) at run time -- never hardcode the digits in the diff; this rule blocks any Luhn-valid 13-19 digit string regardless of whether it is real or a documented test number."},
     {"id": "SEC-002", "title": "No card/token fields written to logs", "tiers": [0,1], "severity": "block", "waivable": false,
      "why": "PCI scope creep: logs are the most common accidental cardholder-data sink.",
      "fix": "Log an opaque reference id instead of the field."},

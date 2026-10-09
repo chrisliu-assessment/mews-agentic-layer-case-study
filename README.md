@@ -28,7 +28,7 @@ Python 3.9+, **standard library only**, nothing to install.
 ```bash
 make audit        # re-analyse the data pack + control coverage replay
 make demo         # gate 5 illustrative change manifests (3 blocked, 1 pass, 1 warn)
-make calibrate    # measure the LLM-judge stand-in against evals/golden.json, approve evals/judge_authority.json
+make calibrate    # measure the LLM-judge stand-in against evals/golden.json, approve evals/judge_authority.json (tracked file: rewrites it, so re-commit it after editing policy/rules.json)
 make test         # unit tests (also run in CI, see .github/workflows/ci.yml)
 ```
 

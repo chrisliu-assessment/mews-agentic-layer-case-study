@@ -1,8 +1,8 @@
 {
   "judge": "keyword-judge-v0",
-  "policy_hash": "03141e131f5e",
+  "policy_hash": "c6553f058e94",
   "mode": "advisory",
   "precision": 1.0,
   "recall": 0.6,
-  "calibrated_at": "2026-10-09T00:18:51.636996+00:00"
+  "calibrated_at": "2026-10-09T04:43:48.596588+00:00"
 }
